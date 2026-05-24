@@ -1,8 +1,11 @@
+import os
 from pathlib import Path
 from decouple import config
 import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+_railway_domain = os.environ.get('RAILWAY_PUBLIC_DOMAIN', '')
 
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-changeme-in-production')
 DEBUG = config('DEBUG', default=True, cast=bool)
@@ -11,11 +14,15 @@ ALLOWED_HOSTS = config(
     default='localhost,127.0.0.1',
     cast=lambda v: [s.strip() for s in v.split(',')]
 )
+if _railway_domain and _railway_domain not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(_railway_domain)
 CSRF_TRUSTED_ORIGINS = config(
     'CSRF_TRUSTED_ORIGINS',
     default='',
     cast=lambda v: [s.strip() for s in v.split(',') if s.strip()]
 )
+if _railway_domain and not CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS = [f'https://{_railway_domain}']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
