@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
 from .models import Cantiere, GiornataDiario, ClusterAttivita
 from .forms import GiornataDiarioForm, CantiereForm
@@ -8,11 +9,13 @@ from ai_engine.extractor import processa_giornata
 
 # ── Cantieri ───────────────────────────────────────────────────────────────
 
+@login_required
 def cantieri_list(request):
     cantieri = Cantiere.objects.all()
     return render(request, 'cantieri_list.html', {'cantieri': cantieri})
 
 
+@login_required
 def cantiere_detail(request, pk):
     cantiere = get_object_or_404(Cantiere, pk=pk)
     giornate = (
@@ -73,6 +76,7 @@ def cantiere_detail(request, pk):
     })
 
 
+@login_required
 def cantiere_create(request):
     if request.method == 'POST':
         form = CantiereForm(request.POST)
@@ -85,6 +89,7 @@ def cantiere_create(request):
     return render(request, 'cantiere_form.html', {'form': form, 'title': 'Nuovo cantiere'})
 
 
+@login_required
 def cantiere_update(request, pk):
     cantiere = get_object_or_404(Cantiere, pk=pk)
     if request.method == 'POST':
@@ -104,6 +109,7 @@ def cantiere_update(request, pk):
 
 # ── Giornate ───────────────────────────────────────────────────────────────
 
+@login_required
 def giornata_create(request):
     cantiere_pk = request.GET.get('cantiere')
     if request.method == 'POST':
@@ -121,6 +127,7 @@ def giornata_create(request):
     })
 
 
+@login_required
 def giornata_update(request, pk):
     giornata = get_object_or_404(GiornataDiario, pk=pk)
     if request.method == 'POST':
@@ -143,6 +150,7 @@ def giornata_update(request, pk):
     })
 
 
+@login_required
 def giornata_delete(request, pk):
     giornata = get_object_or_404(GiornataDiario, pk=pk)
     cantiere_pk = giornata.cantiere.pk
