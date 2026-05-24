@@ -1,0 +1,329 @@
+/* ── Diario di Cantiere ─────────────────────────────────────────────────── */
+
+:root {
+  --c-primary: #0288d1;
+  --c-primary-d: #0277bd;
+  --c-bg: #f5f7fa;
+  --c-card-r: 14px;
+  --c-border: #e3e8ef;
+}
+
+body {
+  background: var(--c-bg);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+}
+
+/* ── Navbar ─────────────────────────────────────────────────────────────── */
+
+.dc-navbar {
+  background: linear-gradient(135deg, #01579b 0%, #0288d1 100%);
+  box-shadow: 0 2px 12px rgba(1,87,155,.25);
+  padding: .65rem 0;
+}
+
+.btn-nuova {
+  background: rgba(255,255,255,.18);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.35);
+  font-weight: 600;
+  font-size: .875rem;
+  border-radius: 8px;
+  padding: .38rem .9rem;
+  transition: background .15s;
+}
+.btn-nuova:hover { background: rgba(255,255,255,.28); color: #fff; }
+
+/* ── Cantiere card (lista) ──────────────────────────────────────────────── */
+
+.dc-card {
+  border: 1px solid var(--c-border);
+  border-radius: var(--c-card-r);
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  transition: box-shadow .15s;
+}
+.dc-card:hover { box-shadow: 0 4px 16px rgba(2,136,209,.12); }
+
+.stat-mini {
+  background: #f0f6ff;
+  border-radius: 10px;
+  padding: .6rem .75rem;
+  text-align: center;
+}
+.stat-mini-val {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--c-primary);
+  line-height: 1.1;
+}
+.stat-mini-lbl {
+  font-size: .68rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-top: 2px;
+}
+
+/* ── Stato badges ───────────────────────────────────────────────────────── */
+
+.badge-stato-attivo   { background:#dcfce7; color:#166534; font-weight:600; font-size:.75rem; padding:.3em .65em; border-radius:999px; }
+.badge-stato-sospeso  { background:#fef9c3; color:#854d0e; font-weight:600; font-size:.75rem; padding:.3em .65em; border-radius:999px; }
+.badge-stato-concluso { background:#f1f5f9; color:#475569; font-weight:600; font-size:.75rem; padding:.3em .65em; border-radius:999px; }
+
+/* ── KPI cards (dettaglio cantiere) ─────────────────────────────────────── */
+
+.kpi-card {
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid transparent;
+}
+.kpi-val {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.kpi-lbl {
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-top: 3px;
+  opacity: .75;
+}
+
+.kpi-blue      { background:#e0f2fe; color:#075985; border-color:#bae6fd; }
+.kpi-slate     { background:#f1f5f9; color:#334155; border-color:#cbd5e1; }
+.kpi-prev-main { background:#f0fdf4; color:#14532d; border-color:#86efac; }
+.kpi-extra-main{ background:#fff1f2; color:#9f1239; border-color:#fca5a5; }
+
+/* Colori categoria */
+.kpi-cartongesso { background:#f0f9ff; color:#0c4a6e; border-color:#bae6fd; }
+.kpi-finitura    { background:#f0fdf4; color:#14532d; border-color:#bbf7d0; }
+.kpi-pittura     { background:#fffbeb; color:#78350f; border-color:#fde68a; }
+.kpi-resina      { background:#fdf4ff; color:#581c87; border-color:#e9d5ff; }
+.kpi-extra       { background:#fff1f2; color:#881337; border-color:#fecdd3; }
+.kpi-materiali   { background:#fff7ed; color:#7c2d12; border-color:#fed7aa; }
+.kpi-logistica   { background:#f8fafc; color:#334155; border-color:#e2e8f0; }
+.kpi-altro       { background:#f8fafc; color:#334155; border-color:#e2e8f0; }
+
+/* Subtotali nelle KPI card categoria */
+.kpi-subtotali {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+}
+.kpi-sub {
+  font-size: .68rem;
+  font-weight: 600;
+  opacity: .85;
+  letter-spacing: .01em;
+}
+.kpi-sub-prev  { color: inherit; }
+.kpi-sub-extra { color: #be123c; }
+
+/* ── Sezione titolo ─────────────────────────────────────────────────────── */
+
+.section-title {
+  font-weight: 700;
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #64748b;
+}
+
+/* ── Giornate list ──────────────────────────────────────────────────────── */
+
+.giornate-list { display: flex; flex-direction: column; gap: .75rem; }
+
+.giornata-card {
+  background: #fff;
+  border: 1px solid var(--c-border);
+  border-radius: var(--c-card-r);
+  overflow: hidden;
+}
+
+.giornata-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .9rem 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.giornata-data {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1e293b;
+}
+
+.giornata-meta {
+  font-size: .8rem;
+  color: #64748b;
+}
+
+.btn-xs {
+  padding: .2rem .5rem;
+  font-size: .75rem;
+  border-radius: 6px;
+}
+
+/* ── Cluster attività ───────────────────────────────────────────────────── */
+
+.cluster-list {
+  padding: .5rem .75rem .75rem;
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+}
+
+.cluster-item {
+  display: flex;
+  align-items: flex-start;
+  gap: .6rem;
+  padding: .45rem .75rem;
+  border-radius: 8px;
+  font-size: .875rem;
+  border-left: 3px solid transparent;
+}
+
+.cluster-badge {
+  font-size: .65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: .2em .55em;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Tag fonte (preventivo / extra / materiali) */
+.fonte-tag {
+  font-size: .62rem;
+  font-weight: 600;
+  padding: .15em .45em;
+  border-radius: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.fonte-preventivo { background:#dbeafe; color:#1e40af; }
+.fonte-extra      { background:#fee2e2; color:#991b1b; }
+.fonte-materiali  { background:#ffedd5; color:#9a3412; }
+
+.cluster-desc { flex: 1; color: #334155; line-height: 1.4; }
+.cluster-ore  { font-weight: 600; color: #64748b; font-size: .8rem; white-space: nowrap; }
+
+/* Colori cluster per categoria */
+.cluster-cartongesso { background:#f0f9ff; border-color:#0ea5e9; }
+.cluster-cartongesso .cluster-badge { background:#e0f2fe; color:#075985; }
+
+.cluster-finitura { background:#f0fdf4; border-color:#22c55e; }
+.cluster-finitura .cluster-badge { background:#dcfce7; color:#15803d; }
+
+.cluster-pittura { background:#fffbeb; border-color:#f59e0b; }
+.cluster-pittura .cluster-badge { background:#fef3c7; color:#92400e; }
+
+.cluster-resina { background:#fdf4ff; border-color:#a855f7; }
+.cluster-resina .cluster-badge { background:#f3e8ff; color:#6b21a8; }
+
+.cluster-extra { background:#fff1f2; border-color:#f43f5e; }
+.cluster-extra .cluster-badge { background:#ffe4e6; color:#9f1239; }
+
+.cluster-materiali { background:#fff7ed; border-color:#f97316; }
+.cluster-materiali .cluster-badge { background:#ffedd5; color:#9a3412; }
+
+.cluster-logistica { background:#f8fafc; border-color:#94a3b8; }
+.cluster-logistica .cluster-badge { background:#f1f5f9; color:#475569; }
+
+.cluster-altro { background:#f8fafc; border-color:#cbd5e1; }
+.cluster-altro .cluster-badge { background:#f1f5f9; color:#475569; }
+
+/* ── Testi grezzi (quando non ci sono cluster) ──────────────────────────── */
+
+.testi-grezzi { padding: .75rem 1.25rem; }
+.testo-raw {
+  font-size: .875rem;
+  color: #475569;
+  padding: .4rem 0;
+  display: flex;
+  gap: .6rem;
+  align-items: flex-start;
+  border-bottom: 1px solid #f1f5f9;
+}
+.testo-raw:last-child { border-bottom: none; }
+.testo-raw-label {
+  font-size: .65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: .15em .5em;
+  border-radius: 4px;
+  background: #e0f2fe;
+  color: #075985;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.testo-raw-extra { background:#ffe4e6; color:#9f1239; }
+.testo-raw-mat   { background:#ffedd5; color:#9a3412; }
+
+/* ── Form giornata ──────────────────────────────────────────────────────── */
+
+.form-block {
+  background: #fff;
+  border: 1px solid var(--c-border);
+  border-radius: var(--c-card-r);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+.form-block-title {
+  background: #f8fafc;
+  padding: .8rem 1.25rem;
+  border-bottom: 1px solid var(--c-border);
+  font-weight: 700;
+  font-size: .875rem;
+  color: #334155;
+}
+.form-block-prev { border-left: 4px solid #0ea5e9; }
+.form-block-extra { border-left: 4px solid #f43f5e; }
+.form-block-mat   { border-left: 4px solid #f97316; }
+
+.form-block-body { padding: 1.25rem; }
+
+.btn-salva {
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 10px;
+  transition: background .15s, box-shadow .15s;
+}
+.btn-salva:hover {
+  background: var(--c-primary-d);
+  box-shadow: 0 4px 14px rgba(2,136,209,.35);
+  color: #fff;
+}
+
+/* ── Empty state ────────────────────────────────────────────────────────── */
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 1rem;
+}
+.empty-state-icon {
+  font-size: 3.5rem;
+  color: #cbd5e1;
+}
+
+/* ── Mobile tweaks ──────────────────────────────────────────────────────── */
+
+@media (max-width: 576px) {
+  .kpi-val { font-size: 1.4rem; }
+  .giornata-header { flex-direction: column; align-items: flex-start; }
+  .cluster-item { flex-wrap: wrap; }
+}

@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <div class="mb-4">
+      <a href="{% url 'cantieri_list' %}" class="text-muted small text-decoration-none">
+        <i class="bi bi-chevron-left me-1"></i>Cantieri
+      </a>
+      <h2 class="fw-bold mt-1 mb-0">{{ title }}</h2>
+    </div>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <!-- Data e cantiere -->
+      <div class="form-block">
+        <div class="form-block-title">
+          <i class="bi bi-calendar3 me-2"></i>Dati giornata
+        </div>
+        <div class="form-block-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Data *</label>
+              {{ form.data }}
+              {% if form.data.errors %}
+                <div class="invalid-feedback d-block">{{ form.data.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Cantiere *</label>
+              {{ form.cantiere }}
+              {% if form.cantiere.errors %}
+                <div class="invalid-feedback d-block">{{ form.cantiere.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-2">
+              <label class="form-label fw-semibold">N. operai</label>
+              {{ form.n_operai }}
+            </div>
+            <div class="col-md-2">
+              <label class="form-label fw-semibold">Ore / op.</label>
+              {{ form.ore_lavorate }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attività preventivo -->
+      <div class="form-block">
+        <div class="form-block-title form-block-prev">
+          <i class="bi bi-clipboard-check me-2"></i>Attività di preventivo
+        </div>
+        <div class="form-block-body">
+          <label class="form-label text-muted small">{{ form.desc_preventivo.help_text }}</label>
+          {{ form.desc_preventivo }}
+        </div>
+      </div>
+
+      <!-- Attività extra -->
+      <div class="form-block">
+        <div class="form-block-title form-block-extra">
+          <i class="bi bi-exclamation-circle me-2"></i>Attività extra
+        </div>
+        <div class="form-block-body">
+          <label class="form-label text-muted small">{{ form.desc_extra.help_text }}</label>
+          {{ form.desc_extra }}
+        </div>
+      </div>
+
+      <!-- Bolle materiale -->
+      <div class="form-block">
+        <div class="form-block-title form-block-mat">
+          <i class="bi bi-box-seam me-2"></i>Bolle materiale
+        </div>
+        <div class="form-block-body">
+          <label class="form-label text-muted small">{{ form.desc_materiali.help_text }}</label>
+          {{ form.desc_materiali }}
+        </div>
+      </div>
+
+      <!-- Azioni -->
+      <div class="d-flex gap-3 justify-content-end mt-4">
+        {% if giornata %}
+          <a href="{% url 'cantiere_detail' giornata.cantiere.pk %}" class="btn btn-outline-secondary px-4">
+            Annulla
+          </a>
+        {% else %}
+          <a href="{% url 'cantieri_list' %}" class="btn btn-outline-secondary px-4">
+            Annulla
+          </a>
+        {% endif %}
+        <button type="submit" class="btn btn-salva px-5">
+          <i class="bi bi-floppy me-2"></i>Salva giornata
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Pre-seleziona cantiere da query string
+document.addEventListener('DOMContentLoaded', function() {
+  const params = new URLSearchParams(window.location.search);
+  const cantiere = params.get('cantiere');
+  if (cantiere) {
+    const sel = document.getElementById('id_cantiere');
+    if (sel) sel.value = cantiere;
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Cantieri – Diario di Cantiere{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <h2 class="fw-bold mb-0">Cantieri</h2>
+  <a href="{% url 'cantiere_create' %}" class="btn btn-primary">
+    <i class="bi bi-plus-circle me-1"></i>Nuovo cantiere
+  </a>
+</div>
+
+{% if cantieri %}
+<div class="row g-3">
+  {% for c in cantieri %}
+  <div class="col-md-6 col-xl-4">
+    <div class="card dc-card h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-start justify-content-between mb-2">
+          <div>
+            <h5 class="fw-bold mb-0">{{ c.nome }}</h5>
+            {% if c.cliente %}
+              <div class="text-muted small">{{ c.cliente }}</div>
+            {% endif %}
+          </div>
+          <span class="badge badge-stato-{{ c.stato }}">{{ c.get_stato_display }}</span>
+        </div>
+
+        {% if c.indirizzo %}
+          <div class="text-muted small mb-3">
+            <i class="bi bi-geo-alt me-1"></i>{{ c.indirizzo }}
+          </div>
+        {% endif %}
+
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <div class="stat-mini">
+              <div class="stat-mini-val">{{ c.ore_uomo_totali|floatformat:0 }}</div>
+              <div class="stat-mini-lbl">ore / uomo</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="stat-mini">
+              <div class="stat-mini-val">{{ c.giornate.count }}</div>
+              <div class="stat-mini-lbl">giornate</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <a href="{{ c.get_absolute_url }}" class="btn btn-primary btn-sm flex-grow-1">
+            <i class="bi bi-eye me-1"></i>Apri cantiere
+          </a>
+          <a href="{% url 'giornata_create' %}?cantiere={{ c.pk }}" class="btn btn-outline-primary btn-sm" title="Nuova giornata">
+            <i class="bi bi-plus-lg"></i>
+          </a>
+          <a href="{% url 'cantiere_update' c.pk %}" class="btn btn-outline-secondary btn-sm" title="Modifica">
+            <i class="bi bi-pencil"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="empty-state">
+  <i class="bi bi-building empty-state-icon"></i>
+  <h5 class="mt-3 mb-1">Nessun cantiere</h5>
+  <p class="text-muted mb-4">Crea il primo cantiere per iniziare a registrare le giornate.</p>
+  <a href="{% url 'cantiere_create' %}" class="btn btn-primary">
+    <i class="bi bi-plus-circle me-1"></i>Crea cantiere
+  </a>
+</div>
+{% endif %}
+{% endblock %}
