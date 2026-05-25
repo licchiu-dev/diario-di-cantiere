@@ -14,4 +14,5 @@ urlpatterns = [
     path('giornata/<int:pk>/elimina/', views.giornata_delete, name='giornata_delete'),
     path('cantieri/nuovo/', views.cantiere_create, name='cantiere_create'),
     path('cantieri/<int:pk>/modifica/', views.cantiere_update, name='cantiere_update'),
+    path('cluster/<int:pk>/modifica/', views.cluster_update, name='cluster_update'),
 ]

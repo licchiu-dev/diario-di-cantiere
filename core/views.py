@@ -3,8 +3,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
 from .models import Cantiere, GiornataDiario, ClusterAttivita
-from .forms import GiornataDiarioForm, CantiereForm
-from ai_engine.extractor import processa_giornata
+from .forms import GiornataDiarioForm, CantiereForm, ClusterForm
+from ai_engine.extractor import processa_giornata, apprendi_da_correzione
 
 
 # ── Cantieri ───────────────────────────────────────────────────────────────
@@ -148,6 +148,24 @@ def giornata_update(request, pk):
         'giornata': giornata,
         'title': f'Modifica – {giornata.data_label}',
     })
+
+
+@login_required
+def cluster_update(request, pk):
+    cluster = get_object_or_404(ClusterAttivita, pk=pk)
+    cantiere_pk = cluster.giornata.cantiere.pk
+    if request.method == 'POST':
+        vecchia_categoria = cluster.categoria
+        form = ClusterForm(request.POST, instance=cluster)
+        if form.is_valid():
+            cluster = form.save()
+            if cluster.categoria != vecchia_categoria:
+                apprendi_da_correzione(cluster.descrizione, cluster.categoria)
+            messages.success(request, 'Etichetta aggiornata.')
+            return redirect('cantiere_detail', pk=cantiere_pk)
+    else:
+        form = ClusterForm(instance=cluster)
+    return render(request, 'cluster_form.html', {'form': form, 'cluster': cluster})
 
 
 @login_required

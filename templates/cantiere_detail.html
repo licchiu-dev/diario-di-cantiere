@@ -127,8 +127,13 @@
         <span class="fonte-tag fonte-{{ cluster.fonte }}">{{ cluster.get_fonte_display }}</span>
         <span class="cluster-desc">{{ cluster.descrizione }}</span>
         {% if cluster.ore_stimate %}
-          <span class="cluster-ore ms-auto">{{ cluster.ore_stimate|floatformat:1 }}h</span>
+          <span class="cluster-ore">{{ cluster.ore_stimate|floatformat:1 }}h</span>
         {% endif %}
+        <a href="{% url 'cluster_update' cluster.pk %}"
+           class="btn btn-xs btn-outline-secondary ms-auto flex-shrink-0"
+           title="Correggi etichetta">
+          <i class="bi bi-pencil"></i>
+        </a>
       </div>
       {% endfor %}
     </div>

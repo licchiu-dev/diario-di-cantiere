@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Modifica etichetta – Diario di Cantiere{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+
+    <div class="mb-4">
+      <a href="{% url 'cantiere_detail' cluster.giornata.cantiere.pk %}"
+         class="text-muted small text-decoration-none">
+        <i class="bi bi-chevron-left me-1"></i>{{ cluster.giornata.cantiere.nome }}
+      </a>
+      <h2 class="fw-bold mt-1 mb-0">Modifica etichetta</h2>
+    </div>
+
+    <!-- Descrizione cluster (readonly) -->
+    <div class="form-block mb-3">
+      <div class="form-block-title">Attività</div>
+      <div class="form-block-body">
+        <p class="mb-0" style="font-size:.95rem; color:#334155; line-height:1.55;">
+          {{ cluster.descrizione }}
+        </p>
+        <div class="mt-2 text-muted small">
+          <i class="bi bi-calendar3 me-1"></i>{{ cluster.giornata.data_label }} &nbsp;·&nbsp;
+          <i class="bi bi-building me-1"></i>{{ cluster.giornata.cantiere.nome }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Form correzione -->
+    <div class="form-block">
+      <div class="form-block-title">Correggi categoria e fonte</div>
+      <div class="form-block-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold">Categoria lavorazione</label>
+              {{ form.categoria }}
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Fonte</label>
+              {{ form.fonte }}
+            </div>
+          </div>
+          <div class="alert alert-info mt-3 py-2 small mb-0" style="font-size:.8rem;">
+            <i class="bi bi-lightbulb me-1"></i>
+            Salvando la correzione, il sistema imparerà a classificare automaticamente
+            testi simili in futuro.
+          </div>
+          <div class="d-flex gap-2 justify-content-end mt-4">
+            <a href="{% url 'cantiere_detail' cluster.giornata.cantiere.pk %}"
+               class="btn btn-outline-secondary px-4">Annulla</a>
+            <button type="submit" class="btn btn-salva px-4">
+              <i class="bi bi-floppy me-1"></i>Salva e impara
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

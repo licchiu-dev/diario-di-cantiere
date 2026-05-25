@@ -7,6 +7,17 @@ e chiamarla invece di _extract_mock().
 """
 import re
 
+_STOP_WORDS = {
+    'della', 'delle', 'dello', 'degli', 'nella', 'nelle', 'nello', 'negli',
+    'sulla', 'sulle', 'sullo', 'alla', 'alle', 'agli', 'dalle', 'dallo',
+    'con', 'per', 'che', 'una', 'uno', 'gli', 'lei', 'lui', 'sua', 'suo',
+    'suoi', 'sue', 'come', 'dove', 'quando', 'hanno', 'sono', 'era', 'anche',
+    'tutto', 'tutti', 'tutte', 'tutta', 'tra', 'fra', 'questo', 'questa',
+    'questi', 'queste', 'stato', 'stati', 'stata', 'state', 'essere', 'avere',
+    'fare', 'molto', 'bene', 'male', 'dopo', 'prima', 'ancora', 'sempre',
+    'piano', 'parte', 'area', 'zona', 'lato', 'cont', 'lavoro', 'lavori',
+}
+
 # Mappa keyword → categoria macrolavorazione
 KEYWORD_MAP = {
     'cartongesso': [
@@ -84,13 +95,34 @@ def _classifica(testo: str) -> str:
     """Restituisce la categoria più pertinente in base alle keyword."""
     testo_l = testo.lower()
     punteggi = {}
+
+    # Regole apprese dall'utente: peso 3 (priorità sulle keyword di default)
+    try:
+        from core.models import RegolaKeyword
+        for regola in RegolaKeyword.objects.all():
+            if regola.keyword in testo_l:
+                punteggi[regola.categoria] = punteggi.get(regola.categoria, 0) + 3
+    except Exception:
+        pass
+
+    # Keyword di default: peso 1
     for cat, keywords in KEYWORD_MAP.items():
         score = sum(1 for kw in keywords if kw in testo_l)
         if score > 0:
-            punteggi[cat] = score
+            punteggi[cat] = punteggi.get(cat, 0) + score
+
     if not punteggi:
         return 'altro'
     return max(punteggi, key=punteggi.get)
+
+
+def apprendi_da_correzione(descrizione: str, categoria: str) -> None:
+    """Salva le keyword significative della descrizione come regole apprese."""
+    from core.models import RegolaKeyword
+    words = re.findall(r'[a-zàèéìòù]+', descrizione.lower())
+    keywords = [w for w in words if len(w) >= 5 and w not in _STOP_WORDS]
+    for kw in keywords:
+        RegolaKeyword.objects.update_or_create(keyword=kw, defaults={'categoria': categoria})
 
 
 def _dividi_in_frasi(testo: str) -> list[str]:

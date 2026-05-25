@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Dipendente, Cantiere, GiornataDiario, ClusterAttivita
+from .models import Dipendente, Cantiere, GiornataDiario, ClusterAttivita, RegolaKeyword
 
 
 @admin.register(Dipendente)
@@ -22,6 +22,14 @@ class ClusterInline(admin.TabularInline):
     model = ClusterAttivita
     extra = 0
     readonly_fields = ['fonte', 'categoria', 'descrizione', 'ore_stimate']
+
+
+@admin.register(RegolaKeyword)
+class RegolaKeywordAdmin(admin.ModelAdmin):
+    list_display = ['keyword', 'categoria']
+    list_filter = ['categoria']
+    search_fields = ['keyword']
+    list_editable = ['categoria']
 
 
 @admin.register(GiornataDiario)

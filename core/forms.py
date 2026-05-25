@@ -1,5 +1,5 @@
 from django import forms
-from .models import GiornataDiario, Cantiere
+from .models import GiornataDiario, Cantiere, ClusterAttivita
 
 
 class GiornataDiarioForm(forms.ModelForm):
@@ -51,6 +51,16 @@ class GiornataDiarioForm(forms.ModelForm):
         self.fields['cantiere'].queryset = Cantiere.objects.all()
         if cantiere_pk:
             self.initial.setdefault('cantiere', cantiere_pk)
+
+
+class ClusterForm(forms.ModelForm):
+    class Meta:
+        model = ClusterAttivita
+        fields = ['categoria', 'fonte']
+        widgets = {
+            'categoria': forms.Select(attrs={'class': 'form-select form-select-lg'}),
+            'fonte': forms.Select(attrs={'class': 'form-select form-select-lg'}),
+        }
 
 
 class CantiereForm(forms.ModelForm):
