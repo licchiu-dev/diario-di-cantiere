@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load dc_tags %}
 {% block title %}{{ cantiere.nome }} – Diario di Cantiere{% endblock %}
 
 {% block content %}
@@ -67,7 +68,7 @@
 <div class="row g-2 mb-4">
   {% for cat in categorie_cards %}
   <div class="col-6 col-sm-4 col-lg-3">
-    <div class="kpi-card kpi-cat kpi-{{ cat.key }}">
+    <div class="kpi-card" style="background:{{ cat.colori.sfondo }};color:{{ cat.colori.testo }};border-color:{{ cat.colori.bordo }};">
       <div class="kpi-val">{{ cat.ore_tot|floatformat:1 }}h</div>
       <div class="kpi-lbl mb-2">{{ cat.nome }}</div>
       <div class="kpi-subtotali">
@@ -122,8 +123,13 @@
     {% if g.clusters.exists %}
     <div class="cluster-list">
       {% for cluster in g.clusters.all %}
-      <div class="cluster-item cluster-{{ cluster.categoria }}">
-        <span class="cluster-badge">{{ cluster.get_categoria_display }}</span>
+      {% with cat=categorie_db|get_item:cluster.categoria %}
+      <div class="cluster-item"
+           style="background:{% if cat %}{{ cat.colori.sfondo }}{% else %}#f8fafc{% endif %};border-left-color:{% if cat %}{{ cat.colori.bordo }}{% else %}#cbd5e1{% endif %};">
+        <span class="cluster-badge"
+              style="background:{% if cat %}{{ cat.colori.badge_bg }}{% else %}#f1f5f9{% endif %};color:{% if cat %}{{ cat.colori.badge_txt }}{% else %}#475569{% endif %};">
+          {% if cat %}{{ cat.nome }}{% else %}{{ cluster.categoria }}{% endif %}
+        </span>
         <span class="fonte-tag fonte-{{ cluster.fonte }}">{{ cluster.get_fonte_display }}</span>
         <span class="cluster-desc">{{ cluster.descrizione }}</span>
         {% if cluster.ore_stimate %}
@@ -135,6 +141,7 @@
           <i class="bi bi-pencil"></i>
         </a>
       </div>
+      {% endwith %}
       {% endfor %}
     </div>
     {% else %}

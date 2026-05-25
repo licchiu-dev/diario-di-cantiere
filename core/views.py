@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
-from .models import Cantiere, GiornataDiario, ClusterAttivita
+from .models import Cantiere, GiornataDiario, ClusterAttivita, CategoriaLavorazione
 from .forms import GiornataDiarioForm, CantiereForm, ClusterForm
 from ai_engine.extractor import processa_giornata, apprendi_da_correzione
 
@@ -45,11 +45,12 @@ def cantiere_detail(request, pk):
         .order_by('-ore_tot')
     )
 
-    cat_labels = dict(ClusterAttivita.CATEGORIA_CHOICES)
+    categorie_db = {c.key: c for c in CategoriaLavorazione.objects.all()}
     categorie_cards = [
         {
             'key': r['categoria'],
-            'nome': cat_labels.get(r['categoria'], r['categoria']),
+            'nome': categorie_db[r['categoria']].nome if r['categoria'] in categorie_db else r['categoria'].title(),
+            'colori': categorie_db[r['categoria']].colori if r['categoria'] in categorie_db else {},
             'ore_tot': float(r['ore_tot'] or 0),
             'ore_prev': float(r['ore_prev'] or 0),
             'ore_extra': float(r['ore_extra'] or 0),
@@ -76,6 +77,7 @@ def cantiere_detail(request, pk):
         'ore_prev_totali': float(totali['ore_prev'] or 0),
         'ore_extra_totali': float(totali['ore_extra'] or 0),
         'categorie_cards': categorie_cards,
+        'categorie_db': categorie_db,
     })
 
 

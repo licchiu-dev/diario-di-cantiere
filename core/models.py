@@ -1,6 +1,45 @@
 from django.db import models
 from django.urls import reverse
 
+TEMA_COLORI = {
+    'blu':     {'sfondo': '#f0f9ff', 'testo': '#0c4a6e', 'bordo': '#bae6fd', 'badge_bg': '#e0f2fe', 'badge_txt': '#075985'},
+    'verde':   {'sfondo': '#f0fdf4', 'testo': '#14532d', 'bordo': '#bbf7d0', 'badge_bg': '#dcfce7', 'badge_txt': '#15803d'},
+    'giallo':  {'sfondo': '#fffbeb', 'testo': '#78350f', 'bordo': '#fde68a', 'badge_bg': '#fef3c7', 'badge_txt': '#92400e'},
+    'viola':   {'sfondo': '#fdf4ff', 'testo': '#581c87', 'bordo': '#e9d5ff', 'badge_bg': '#f3e8ff', 'badge_txt': '#6b21a8'},
+    'rosso':   {'sfondo': '#fff1f2', 'testo': '#881337', 'bordo': '#fecdd3', 'badge_bg': '#ffe4e6', 'badge_txt': '#9f1239'},
+    'arancio': {'sfondo': '#fff7ed', 'testo': '#7c2d12', 'bordo': '#fed7aa', 'badge_bg': '#ffedd5', 'badge_txt': '#9a3412'},
+    'grigio':  {'sfondo': '#f8fafc', 'testo': '#334155', 'bordo': '#e2e8f0', 'badge_bg': '#f1f5f9', 'badge_txt': '#475569'},
+    'teal':    {'sfondo': '#f0fdfa', 'testo': '#134e4a', 'bordo': '#99f6e4', 'badge_bg': '#ccfbf1', 'badge_txt': '#0f766e'},
+    'rosa':    {'sfondo': '#fdf2f8', 'testo': '#831843', 'bordo': '#f9a8d4', 'badge_bg': '#fce7f3', 'badge_txt': '#9d174d'},
+}
+
+_COLORI_DEFAULT = TEMA_COLORI['grigio']
+
+
+class CategoriaLavorazione(models.Model):
+    TEMA_CHOICES = [(k, k.title()) for k in TEMA_COLORI]
+
+    key = models.SlugField(max_length=50, unique=True, help_text='Identificatore breve senza spazi (es. posa-pavimenti)')
+    nome = models.CharField(max_length=100)
+    tema = models.CharField(max_length=20, choices=TEMA_CHOICES, default='grigio')
+    keywords = models.TextField(
+        blank=True,
+        help_text='Una keyword per riga. Usata per classificare automaticamente le attività.'
+    )
+    ordine = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ['ordine', 'nome']
+        verbose_name = 'Categoria lavorazione'
+        verbose_name_plural = 'Categorie lavorazioni'
+
+    def __str__(self):
+        return self.nome
+
+    @property
+    def colori(self):
+        return TEMA_COLORI.get(self.tema, _COLORI_DEFAULT)
+
 
 class Dipendente(models.Model):
     RUOLO_CHOICES = [
@@ -114,16 +153,6 @@ class GiornataDiario(models.Model):
 
 
 class ClusterAttivita(models.Model):
-    CATEGORIA_CHOICES = [
-        ('cartongesso', 'Cartongesso'),
-        ('finitura', 'Finitura / Stuccatura'),
-        ('pittura', 'Pittura'),
-        ('resina', 'Resina / Microcemento'),
-        ('extra', 'Extra / Non preventivato'),
-        ('materiali', 'Materiali / Bolle'),
-        ('logistica', 'Logistica'),
-        ('altro', 'Altro'),
-    ]
     FONTE_CHOICES = [
         ('preventivo', 'Preventivo'),
         ('extra', 'Extra'),
@@ -133,7 +162,7 @@ class ClusterAttivita(models.Model):
         GiornataDiario, on_delete=models.CASCADE, related_name='clusters'
     )
     fonte = models.CharField(max_length=20, choices=FONTE_CHOICES)
-    categoria = models.CharField(max_length=30, choices=CATEGORIA_CHOICES, default='altro')
+    categoria = models.CharField(max_length=50, default='altro')
     descrizione = models.TextField()
     ore_stimate = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
 
@@ -148,7 +177,7 @@ class ClusterAttivita(models.Model):
 
 class RegolaKeyword(models.Model):
     keyword = models.CharField(max_length=200, unique=True)
-    categoria = models.CharField(max_length=30, choices=ClusterAttivita.CATEGORIA_CHOICES)
+    categoria = models.CharField(max_length=50)
 
     class Meta:
         ordering = ['categoria', 'keyword']

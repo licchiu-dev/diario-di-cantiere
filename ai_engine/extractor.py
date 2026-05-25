@@ -96,7 +96,7 @@ def _classifica(testo: str) -> str:
     testo_l = testo.lower()
     punteggi = {}
 
-    # Regole apprese dall'utente: peso 3 (priorità sulle keyword di default)
+    # 1. Regole apprese dall'utente: peso 3 (massima priorità)
     try:
         from core.models import RegolaKeyword
         for regola in RegolaKeyword.objects.all():
@@ -105,7 +105,18 @@ def _classifica(testo: str) -> str:
     except Exception:
         pass
 
-    # Keyword di default: peso 1
+    # 2. Keywords delle categorie nel DB: peso 2
+    try:
+        from core.models import CategoriaLavorazione
+        for cat in CategoriaLavorazione.objects.exclude(keywords=''):
+            for kw in cat.keywords.splitlines():
+                kw = kw.strip().lower()
+                if kw and kw in testo_l:
+                    punteggi[cat.key] = punteggi.get(cat.key, 0) + 2
+    except Exception:
+        pass
+
+    # 3. KEYWORD_MAP hardcoded come fallback: peso 1
     for cat, keywords in KEYWORD_MAP.items():
         score = sum(1 for kw in keywords if kw in testo_l)
         if score > 0:
