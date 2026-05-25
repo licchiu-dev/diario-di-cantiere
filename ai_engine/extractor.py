@@ -66,6 +66,15 @@ _FINE_SOGGETTO = [
 ]
 
 
+def _estrai_ore(frase: str):
+    """Estrae ore esplicite dal testo: '3 ore', '3h', '3.5h', '2,5 ore'."""
+    pattern = r'(\d+(?:[.,]\d+)?)\s*(?:h\b|ore?\b)'
+    m = re.search(pattern, frase.lower())
+    if m:
+        return float(m.group(1).replace(',', '.'))
+    return None
+
+
 def _conta_persone(frase: str) -> int:
     """
     Stima quante persone stanno lavorando sull'attività descritta nella frase,
@@ -170,7 +179,8 @@ def _extract_mock(testo: str, fonte: str) -> list[dict]:
             'fonte': fonte,
             'categoria': categoria,
             'descrizione': frase,
-            'n_persone': _conta_persone(frase),   # usato per la distribuzione proporzionale
+            'n_persone': _conta_persone(frase),
+            'ore_esplicite': _estrai_ore(frase),
         })
     return risultati
 
@@ -210,7 +220,10 @@ def processa_giornata(giornata) -> None:
 
     da_creare = []
     for c, peso in zip(cluster_lavoro, pesi):
-        ore_cluster = round(ore_uomo_totali * peso / tot_peso, 1)
+        if c.get('ore_esplicite') is not None:
+            ore_cluster = round(c['ore_esplicite'], 1)
+        else:
+            ore_cluster = round(ore_uomo_totali * peso / tot_peso, 1)
         da_creare.append(ClusterAttivita(
             giornata=giornata,
             fonte=c['fonte'],
