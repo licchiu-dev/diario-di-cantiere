@@ -221,7 +221,7 @@ def processa_giornata(giornata) -> None:
     da_creare = []
     for c, peso in zip(cluster_lavoro, pesi):
         if c.get('ore_esplicite') is not None:
-            ore_cluster = round(c['ore_esplicite'], 1)
+            ore_cluster = round(c['ore_esplicite'] * c.get('n_persone', 1), 1)
         else:
             ore_cluster = round(ore_uomo_totali * peso / tot_peso, 1)
         da_creare.append(ClusterAttivita(
