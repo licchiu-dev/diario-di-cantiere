@@ -1,3 +1,6 @@
+import json
+from datetime import date
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -148,6 +151,47 @@ def giornata_update(request, pk):
         'giornata': giornata,
         'title': f'Modifica – {giornata.data_label}',
     })
+
+
+@login_required
+def esporta_backup(request):
+    cantieri = Cantiere.objects.prefetch_related('giornate__clusters').all()
+    dati = []
+    for c in cantieri:
+        giornate = []
+        for g in c.giornate.all():
+            clusters = [
+                {
+                    'fonte': cl.fonte,
+                    'categoria': cl.categoria,
+                    'descrizione': cl.descrizione,
+                    'ore_stimate': str(cl.ore_stimate) if cl.ore_stimate is not None else None,
+                }
+                for cl in g.clusters.all()
+            ]
+            giornate.append({
+                'data': g.data.isoformat(),
+                'n_operai': g.n_operai,
+                'ore_lavorate': str(g.ore_lavorate),
+                'desc_preventivo': g.desc_preventivo,
+                'desc_extra': g.desc_extra,
+                'desc_materiali': g.desc_materiali,
+                'clusters': clusters,
+            })
+        dati.append({
+            'nome': c.nome,
+            'cliente': c.cliente,
+            'indirizzo': c.indirizzo,
+            'stato': c.stato,
+            'data_inizio': c.data_inizio.isoformat() if c.data_inizio else None,
+            'note': c.note,
+            'giornate': giornate,
+        })
+
+    payload = {'data_export': date.today().isoformat(), 'cantieri': dati}
+    response = JsonResponse(payload, json_dumps_params={'ensure_ascii': False, 'indent': 2})
+    response['Content-Disposition'] = f'attachment; filename="backup_{date.today()}.json"'
+    return response
 
 
 @login_required
