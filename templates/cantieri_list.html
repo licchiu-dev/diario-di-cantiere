@@ -2,10 +2,26 @@
 {% block title %}Cantieri – Diario di Cantiere{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="d-flex align-items-center justify-content-between mb-3">
   <h2 class="fw-bold mb-0">Cantieri</h2>
   <a href="{% url 'cantiere_create' %}" class="btn btn-primary">
     <i class="bi bi-plus-circle me-1"></i>Nuovo cantiere
+  </a>
+</div>
+
+<!-- Filtri stato -->
+<div class="d-flex gap-2 flex-wrap mb-4">
+  <a href="?" class="btn btn-sm {% if not stato_attivo %}btn-dark{% else %}btn-outline-secondary{% endif %}">
+    Tutti
+  </a>
+  <a href="?stato=attivo" class="btn btn-sm {% if stato_attivo == 'attivo' %}btn-success{% else %}btn-outline-success{% endif %}">
+    Attivi
+  </a>
+  <a href="?stato=sospeso" class="btn btn-sm {% if stato_attivo == 'sospeso' %}btn-warning{% else %}btn-outline-warning{% endif %}">
+    Sospesi
+  </a>
+  <a href="?stato=concluso" class="btn btn-sm {% if stato_attivo == 'concluso' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
+    Conclusi
   </a>
 </div>
 
@@ -56,6 +72,13 @@
           <a href="{% url 'cantiere_update' c.pk %}" class="btn btn-outline-secondary btn-sm" title="Modifica">
             <i class="bi bi-pencil"></i>
           </a>
+          <form method="post" action="{% url 'cantiere_delete' c.pk %}" class="d-inline"
+                onsubmit="return confirm('Eliminare il cantiere «{{ c.nome }}» e tutte le sue giornate? Operazione irreversibile.')">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger btn-sm" title="Elimina cantiere">
+              <i class="bi bi-trash"></i>
+            </button>
+          </form>
         </div>
       </div>
     </div>
@@ -67,7 +90,13 @@
 <div class="empty-state">
   <i class="bi bi-building empty-state-icon"></i>
   <h5 class="mt-3 mb-1">Nessun cantiere</h5>
-  <p class="text-muted mb-4">Crea il primo cantiere per iniziare a registrare le giornate.</p>
+  <p class="text-muted mb-4">
+    {% if stato_attivo %}
+      Nessun cantiere con stato "{{ stato_attivo }}".
+    {% else %}
+      Crea il primo cantiere per iniziare a registrare le giornate.
+    {% endif %}
+  </p>
   <a href="{% url 'cantiere_create' %}" class="btn btn-primary">
     <i class="bi bi-plus-circle me-1"></i>Crea cantiere
   </a>

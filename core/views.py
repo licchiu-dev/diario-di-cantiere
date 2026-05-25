@@ -15,20 +15,40 @@ from ai_engine.extractor import processa_giornata
 
 @login_required
 def cantieri_list(request):
+    stato = request.GET.get('stato', '')
     cantieri = Cantiere.objects.all()
-    return render(request, 'cantieri_list.html', {'cantieri': cantieri})
+    if stato:
+        cantieri = cantieri.filter(stato=stato)
+    return render(request, 'cantieri_list.html', {
+        'cantieri': cantieri,
+        'stato_attivo': stato,
+    })
+
+
+@login_required
+def cantiere_delete(request, pk):
+    cantiere = get_object_or_404(Cantiere, pk=pk)
+    if request.method == 'POST':
+        nome = cantiere.nome
+        cantiere.delete()
+        messages.success(request, f'Cantiere "{nome}" eliminato.')
+    return redirect('cantieri_list')
 
 
 @login_required
 def cantiere_detail(request, pk):
     cantiere = get_object_or_404(Cantiere, pk=pk)
-    giornate = (
-        cantiere.giornate
-        .prefetch_related('clusters')
-        .order_by('-data')
-    )
 
-    # Statistiche ore-uomo
+    filtro_dip = request.GET.get('dipendente', '').strip()
+    filtro_cat = request.GET.get('categoria', '').strip()
+
+    giornate = cantiere.giornate.prefetch_related('clusters').order_by('-data')
+    if filtro_dip:
+        giornate = giornate.filter(clusters__dipendenti_nomi__icontains=filtro_dip).distinct()
+    if filtro_cat:
+        giornate = giornate.filter(clusters__categoria=filtro_cat).distinct()
+
+    # Statistiche ore-uomo (sempre sul cantiere intero, non filtrate)
     ore_totali = sum(g.ore_uomo for g in giornate)
     n_giornate = giornate.count()
 
@@ -70,6 +90,26 @@ def cantiere_detail(request, pk):
         )
     )
 
+    # Opzioni per i filtri
+    tutti_nomi = set()
+    for nomi_str in (
+        ClusterAttivita.objects
+        .filter(giornata__cantiere=cantiere)
+        .exclude(dipendenti_nomi='')
+        .values_list('dipendenti_nomi', flat=True)
+    ):
+        for n in nomi_str.split(','):
+            n = n.strip()
+            if n:
+                tutti_nomi.add(n)
+
+    categorie_presenti = list(
+        ClusterAttivita.objects
+        .filter(giornata__cantiere=cantiere)
+        .values_list('categoria', flat=True)
+        .distinct()
+    )
+
     return render(request, 'cantiere_detail.html', {
         'cantiere': cantiere,
         'giornate': giornate,
@@ -79,6 +119,13 @@ def cantiere_detail(request, pk):
         'ore_extra_totali': float(totali['ore_extra'] or 0),
         'categorie_cards': categorie_cards,
         'categorie_db': categorie_db,
+        'dipendenti_filtro': sorted(tutti_nomi),
+        'categorie_filtro': [
+            {'key': k, 'nome': categorie_db[k].nome if k in categorie_db else k.title()}
+            for k in categorie_presenti
+        ],
+        'filtro_dip': filtro_dip,
+        'filtro_cat': filtro_cat,
     })
 
 
@@ -205,8 +252,6 @@ def esporta_backup(request):
             ]
             giornate.append({
                 'data': g.data.isoformat(),
-                'n_operai': g.n_operai,
-                'ore_lavorate': str(g.ore_lavorate),
                 'desc_preventivo': g.desc_preventivo,
                 'desc_extra': g.desc_extra,
                 'desc_materiali': g.desc_materiali,

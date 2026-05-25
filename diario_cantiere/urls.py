@@ -15,6 +15,7 @@ urlpatterns = [
     path('giornata/<int:pk>/rielabora/', views.giornata_rielabora, name='giornata_rielabora'),
     path('cantieri/nuovo/', views.cantiere_create, name='cantiere_create'),
     path('cantieri/<int:pk>/modifica/', views.cantiere_update, name='cantiere_update'),
+    path('cantieri/<int:pk>/elimina/', views.cantiere_delete, name='cantiere_delete'),
     path('cluster/<int:pk>/modifica/', views.cluster_update, name='cluster_update'),
     path('backup/', views.esporta_backup, name='esporta_backup'),
     path('health/', views.health, name='health'),

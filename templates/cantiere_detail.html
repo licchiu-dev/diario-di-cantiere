@@ -85,10 +85,44 @@
 </div>
 {% endif %}
 
+<!-- Filtri giornate -->
+{% if dipendenti_filtro or categorie_filtro %}
+<form method="get" class="d-flex flex-wrap gap-2 align-items-center mb-4">
+  {% if dipendenti_filtro %}
+  <select name="dipendente" class="form-select form-select-sm" style="max-width:200px;"
+          onchange="this.form.submit()">
+    <option value="">Tutti i dipendenti</option>
+    {% for nome in dipendenti_filtro %}
+      <option value="{{ nome }}" {% if filtro_dip == nome %}selected{% endif %}>{{ nome }}</option>
+    {% endfor %}
+  </select>
+  {% endif %}
+
+  {% if categorie_filtro %}
+  <select name="categoria" class="form-select form-select-sm" style="max-width:220px;"
+          onchange="this.form.submit()">
+    <option value="">Tutte le lavorazioni</option>
+    {% for cat in categorie_filtro %}
+      <option value="{{ cat.key }}" {% if filtro_cat == cat.key %}selected{% endif %}>{{ cat.nome }}</option>
+    {% endfor %}
+  </select>
+  {% endif %}
+
+  {% if filtro_dip or filtro_cat %}
+    <a href="{% url 'cantiere_detail' cantiere.pk %}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-x-lg me-1"></i>Rimuovi filtri
+    </a>
+  {% endif %}
+</form>
+{% endif %}
+
 <!-- Lista giornate -->
 {% if giornate %}
 <div class="section-title mb-3">
   <i class="bi bi-journal-text me-2"></i>Giornate di cantiere
+  {% if filtro_dip or filtro_cat %}
+    <span class="badge bg-primary ms-2">{{ n_giornate }} risultat{% if n_giornate == 1 %}o{% else %}i{% endif %}</span>
+  {% endif %}
 </div>
 
 <div class="giornate-list">
