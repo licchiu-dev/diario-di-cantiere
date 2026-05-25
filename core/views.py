@@ -156,6 +156,25 @@ def giornata_update(request, pk):
     })
 
 
+@login_required
+def test_openai(request):
+    from django.conf import settings
+    api_key = getattr(settings, 'OPENAI_API_KEY', '')
+    if not api_key:
+        return JsonResponse({'ok': False, 'errore': 'OPENAI_API_KEY non impostata'})
+    try:
+        from openai import OpenAI
+        client = OpenAI(api_key=api_key)
+        resp = client.chat.completions.create(
+            model='gpt-4o-mini',
+            messages=[{'role': 'user', 'content': 'Rispondi solo: ok'}],
+            max_tokens=5,
+        )
+        return JsonResponse({'ok': True, 'risposta': resp.choices[0].message.content})
+    except Exception as e:
+        return JsonResponse({'ok': False, 'errore': str(e)})
+
+
 def health(request):
     from django.db import connection
     db = connection.settings_dict
