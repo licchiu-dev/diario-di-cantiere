@@ -52,9 +52,15 @@ def _extract_with_openai(testo: str, fonte: str) -> list[dict] | None:
             istr_ore = "Stai analizzando bolle di materiale: ore_stimate deve essere sempre null."
         else:
             istr_ore = (
-                "ore_stimate = ore-uomo TOTALI per questa attività specifica (n. persone × ore individuali).\n"
-                "Estrai solo le ore esplicitamente menzionate nel testo.\n"
-                "Esempi: 'Roberto e Leo, 5 ore' → 10.0 | 'Marco 3h' → 3.0 | 'Stefano 4h' → 4.0 | senza ore menzionate → null"
+                "Regola per ore_stimate (ore-uomo TOTALI per questa attività):\n"
+                "1. Conta quante persone svolgono questa specifica attività (n).\n"
+                "2. Se le ore sono esplicitamente indicate nel testo → ore_stimate = ore_indicate × n\n"
+                "3. Se le ore NON sono indicate → ore_stimate = 8.0 × n  (giornata standard)\n"
+                "Esempi:\n"
+                "  'Leo e Marco per 4 ore' → n=2, ore=4 → ore_stimate=8.0\n"
+                "  'Stefano 3h' → n=1, ore=3 → ore_stimate=3.0\n"
+                "  'Leo e Marco' (senza ore) → n=2, default 8h → ore_stimate=16.0\n"
+                "  'Roberto' (senza ore) → n=1, default 8h → ore_stimate=8.0"
             )
 
         system = f"""Sei un assistente per diari di cantiere italiani. Analizza il testo e suddividilo in attività separate.
@@ -67,13 +73,13 @@ Categorie disponibili:
 Per ogni attività estrai:
 - categoria: chiave dalla lista sopra
 - descrizione: testo pulito (senza ore e senza nomi di persone)
-- ore_stimate: ore-uomo TOTALI. null se non specificato.
+- ore_stimate: ore-uomo TOTALI calcolate secondo la regola sopra. null SOLO per i materiali.
 - dipendenti: lista nomi delle persone che svolgono questa attività ([] se non specificato)
 - ambiente: locale o area dove si lavora (es. "Bagno padronale", "Piano -1"). null se non specificato.
 - avanzamento: "iniziato", "in_corso" o "completato". null se non chiaro.
 
 Rispondi SOLO con JSON:
-{{"clusters": [{{"categoria":"...", "descrizione":"...", "ore_stimate":null, "dipendenti":[], "ambiente":null, "avanzamento":null}}]}}"""
+{{"clusters": [{{"categoria":"...", "descrizione":"...", "ore_stimate":8.0, "dipendenti":[], "ambiente":null, "avanzamento":null}}]}}"""
 
         client = OpenAI(api_key=api_key)
         response = client.chat.completions.create(
@@ -96,7 +102,6 @@ Rispondi SOLO con JSON:
                 'categoria': c.get('categoria', 'altro'),
                 'descrizione': str(c.get('descrizione', '')).strip()[:400],
                 'ore_stimate': float(c['ore_stimate']) if c.get('ore_stimate') is not None else None,
-                'n_persone': 1,
                 'dipendenti_nomi': ', '.join(c.get('dipendenti') or []),
                 'ambiente_nome': str(c['ambiente']).strip() if c.get('ambiente') else '',
                 'avanzamento': c.get('avanzamento') or '',
