@@ -66,9 +66,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'diario_cantiere.wsgi.application'
 
-_DATABASE_URL = config('DATABASE_URL', default='')
+_DATABASE_URL = os.environ.get('DATABASE_URL', '')
+
 if _DATABASE_URL:
     DATABASES = {'default': dj_database_url.parse(_DATABASE_URL, conn_max_age=600)}
+elif os.environ.get('PGHOST'):
+    # Railway inietta sempre queste variabili quando PostgreSQL è nel progetto
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('PGDATABASE', 'railway'),
+            'USER': os.environ.get('PGUSER', 'postgres'),
+            'PASSWORD': os.environ.get('PGPASSWORD', ''),
+            'HOST': os.environ.get('PGHOST', ''),
+            'PORT': os.environ.get('PGPORT', '5432'),
+            'CONN_MAX_AGE': 600,
+        }
+    }
 else:
     DATABASES = {
         'default': {

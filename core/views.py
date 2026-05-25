@@ -161,7 +161,9 @@ def health(request):
     return JsonResponse({
         'status': 'ok',
         'database': db['ENGINE'],
-        'host': db.get('HOST', 'sqlite-locale'),
+        'host': db.get('HOST') or 'sqlite-locale',
+        'database_url_set': bool(os.environ.get('DATABASE_URL')),
+        'pghost_set': bool(os.environ.get('PGHOST')),
     })
 
 
