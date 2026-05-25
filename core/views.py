@@ -231,11 +231,17 @@ def giornata_rielabora(request, pk):
         giornata.clusters.all().delete()
         giornata.ai_processata = False
         giornata.save()
-        processa_giornata(giornata)
+        try:
+            processa_giornata(giornata)
+        except Exception as e:
+            messages.error(request, f'Errore durante l\'elaborazione: {e}')
+            return redirect('cantiere_detail', pk=giornata.cantiere.pk)
         if giornata.clusters.exists():
             messages.success(request, f'Giornata del {giornata.data_label} rielaborata.')
         else:
-            messages.warning(request, 'Nessun cluster estratto — verifica che OPENAI_API_KEY sia impostata.')
+            key = os.environ.get('OPENAI_API_KEY', '')
+            stato = f'Key presente ({key[:8]}…)' if key else 'Key NON trovata'
+            messages.warning(request, f'Nessun cluster estratto. {stato} — controlla i log Railway per l\'errore.')
     return redirect('cantiere_detail', pk=giornata.cantiere.pk)
 
 

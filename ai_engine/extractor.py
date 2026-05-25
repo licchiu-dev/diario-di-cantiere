@@ -4,6 +4,9 @@ Se la chiave API non è disponibile, le giornate vengono salvate senza cluster
 e il testo grezzo rimane visibile nella pagina del cantiere.
 """
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -102,7 +105,8 @@ Rispondi SOLO con JSON:
             if str(c.get('descrizione', '')).strip()
         ]
 
-    except Exception:
+    except Exception as e:
+        logger.error("OpenAI extraction failed: %s", e, exc_info=True)
         return None
 
 
