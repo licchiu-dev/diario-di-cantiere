@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
 from .models import Cantiere, GiornataDiario, ClusterAttivita, CategoriaLavorazione
 from .forms import GiornataDiarioForm, CantiereForm, ClusterForm
-from ai_engine.extractor import processa_giornata, apprendi_da_correzione
+from ai_engine.extractor import processa_giornata
 
 
 # ── Cantieri ───────────────────────────────────────────────────────────────
@@ -214,12 +214,9 @@ def cluster_update(request, pk):
     cluster = get_object_or_404(ClusterAttivita, pk=pk)
     cantiere_pk = cluster.giornata.cantiere.pk
     if request.method == 'POST':
-        vecchia_categoria = cluster.categoria
         form = ClusterForm(request.POST, instance=cluster)
         if form.is_valid():
-            cluster = form.save()
-            if cluster.categoria != vecchia_categoria:
-                apprendi_da_correzione(cluster.descrizione, cluster.categoria)
+            form.save()
             messages.success(request, 'Etichetta aggiornata.')
             return redirect('cantiere_detail', pk=cantiere_pk)
     else:

@@ -199,14 +199,3 @@ class ClusterAttivita(models.Model):
         return f"{self.get_categoria_display()} – {self.descrizione[:60]}"
 
 
-class RegolaKeyword(models.Model):
-    keyword = models.CharField(max_length=200, unique=True)
-    categoria = models.CharField(max_length=50)
-
-    class Meta:
-        ordering = ['categoria', 'keyword']
-        verbose_name = 'Regola keyword'
-        verbose_name_plural = 'Regole keyword'
-
-    def __str__(self):
-        return f'{self.keyword} → {self.get_categoria_display()}'

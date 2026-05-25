@@ -1,6 +1,5 @@
 from django.contrib import admin
-from django import forms as django_forms
-from .models import Dipendente, Cantiere, GiornataDiario, ClusterAttivita, RegolaKeyword, CategoriaLavorazione, Ambiente
+from .models import Dipendente, Cantiere, GiornataDiario, ClusterAttivita, CategoriaLavorazione, Ambiente
 
 
 @admin.register(Dipendente)
@@ -38,20 +37,6 @@ class CategoriaLavorazioneAdmin(admin.ModelAdmin):
     list_editable = ['tema', 'ordine']
     prepopulated_fields = {'key': ('nome',)}
 
-
-@admin.register(RegolaKeyword)
-class RegolaKeywordAdmin(admin.ModelAdmin):
-    list_display = ['keyword', 'categoria']
-    list_filter = ['categoria']
-    search_fields = ['keyword']
-
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        scelte = [('', '---------')] + [
-            (c.key, c.nome) for c in CategoriaLavorazione.objects.all()
-        ]
-        form.base_fields['categoria'].widget = django_forms.Select(choices=scelte)
-        return form
 
 
 @admin.register(GiornataDiario)
