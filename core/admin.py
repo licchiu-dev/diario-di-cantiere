@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms as django_forms
-from .models import Dipendente, Cantiere, GiornataDiario, ClusterAttivita, RegolaKeyword, CategoriaLavorazione
+from .models import Dipendente, Cantiere, GiornataDiario, ClusterAttivita, RegolaKeyword, CategoriaLavorazione, Ambiente
 
 
 @admin.register(Dipendente)
@@ -19,10 +19,17 @@ class CantiereAdmin(admin.ModelAdmin):
     list_editable = ['stato']
 
 
+@admin.register(Ambiente)
+class AmbienteAdmin(admin.ModelAdmin):
+    list_display = ['nome', 'cantiere']
+    list_filter = ['cantiere']
+    search_fields = ['nome']
+
+
 class ClusterInline(admin.TabularInline):
     model = ClusterAttivita
     extra = 0
-    readonly_fields = ['fonte', 'categoria', 'descrizione', 'ore_stimate']
+    readonly_fields = ['fonte', 'categoria', 'descrizione', 'ore_stimate', 'ambiente', 'dipendenti_nomi', 'avanzamento']
 
 
 @admin.register(CategoriaLavorazione)

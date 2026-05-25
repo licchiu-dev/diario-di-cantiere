@@ -131,7 +131,14 @@
           {% if cat %}{{ cat.nome }}{% else %}{{ cluster.categoria }}{% endif %}
         </span>
         <span class="fonte-tag fonte-{{ cluster.fonte }}">{{ cluster.get_fonte_display }}</span>
-        <span class="cluster-desc">{{ cluster.descrizione }}</span>
+        <span class="cluster-desc">
+          {{ cluster.descrizione }}
+          <span class="cluster-meta">
+            {% if cluster.ambiente %}<span class="meta-tag meta-ambiente"><i class="bi bi-geo-alt"></i> {{ cluster.ambiente.nome }}</span>{% endif %}
+            {% if cluster.dipendenti_nomi %}<span class="meta-tag meta-dip"><i class="bi bi-person"></i> {{ cluster.dipendenti_nomi }}</span>{% endif %}
+            {% if cluster.avanzamento %}<span class="meta-tag meta-av-{{ cluster.avanzamento }}">{{ cluster.get_avanzamento_display }}</span>{% endif %}
+          </span>
+        </span>
         {% if cluster.ore_stimate %}
           <span class="cluster-ore">{{ cluster.ore_stimate|floatformat:1 }}h</span>
         {% endif %}

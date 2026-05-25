@@ -192,8 +192,16 @@ Categorie disponibili:
 
 {istr_ore}
 
-Rispondi SOLO con JSON nel formato:
-{{"clusters": [{{"categoria": "chiave", "descrizione": "testo pulito senza ore", "ore_stimate": null}}]}}"""
+Per ogni attività estrai:
+- categoria: chiave dalla lista sopra
+- descrizione: testo pulito (senza ore e senza nomi di persone)
+- ore_stimate: ore-uomo TOTALI (persone × ore individuali). null se non specificato.
+- dipendenti: lista di nomi delle persone che svolgono questa attività (lista vuota se non specificato)
+- ambiente: locale o area dove si lavora (es. "Bagno padronale", "Piano -1", "Tromba scale"). null se non specificato.
+- avanzamento: stato del lavoro — uno tra "iniziato", "in_corso", "completato". null se non chiaro.
+
+Rispondi SOLO con JSON:
+{{"clusters": [{{"categoria":"...", "descrizione":"...", "ore_stimate":null, "dipendenti":[], "ambiente":null, "avanzamento":null}}]}}"""
 
         client = OpenAI(api_key=api_key)
         response = client.chat.completions.create(
@@ -217,6 +225,9 @@ Rispondi SOLO con JSON nel formato:
                 'descrizione': str(c.get('descrizione', '')).strip()[:400],
                 'ore_stimate': float(c['ore_stimate']) if c.get('ore_stimate') is not None else None,
                 'n_persone': 1,
+                'dipendenti_nomi': ', '.join(c.get('dipendenti') or []),
+                'ambiente_nome': str(c['ambiente']).strip() if c.get('ambiente') else '',
+                'avanzamento': c.get('avanzamento') or '',
             }
             for c in clusters
             if str(c.get('descrizione', '')).strip()
@@ -237,6 +248,19 @@ def apprendi_da_correzione(descrizione: str, categoria: str) -> None:
 
 
 # ── Entry point principale ────────────────────────────────────────────────────
+
+def _get_or_create_ambiente(cantiere, nome: str):
+    if not nome:
+        return None
+    from core.models import Ambiente
+    nome = nome.strip().title()
+    obj, _ = Ambiente.objects.get_or_create(
+        cantiere=cantiere,
+        nome__iexact=nome,
+        defaults={'nome': nome},
+    )
+    return obj
+
 
 def processa_giornata(giornata) -> None:
     from core.models import ClusterAttivita
@@ -284,6 +308,9 @@ def processa_giornata(giornata) -> None:
             categoria=c['categoria'],
             descrizione=c['descrizione'][:400],
             ore_stimate=round(float(c['ore_stimate']), 1),
+            ambiente=_get_or_create_ambiente(giornata.cantiere, c.get('ambiente_nome', '')),
+            dipendenti_nomi=c.get('dipendenti_nomi', ''),
+            avanzamento=c.get('avanzamento', ''),
         )
         for c in cluster_lavoro
     ] + [
@@ -293,6 +320,9 @@ def processa_giornata(giornata) -> None:
             categoria=c['categoria'],
             descrizione=c['descrizione'][:400],
             ore_stimate=None,
+            ambiente=_get_or_create_ambiente(giornata.cantiere, c.get('ambiente_nome', '')),
+            dipendenti_nomi=c.get('dipendenti_nomi', ''),
+            avanzamento=c.get('avanzamento', ''),
         )
         for c in cluster_mat
     ]

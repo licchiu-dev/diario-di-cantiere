@@ -152,11 +152,30 @@ class GiornataDiario(models.Model):
         return f"{g} {self.data.day} {m} {self.data.year}"
 
 
+class Ambiente(models.Model):
+    cantiere = models.ForeignKey(Cantiere, on_delete=models.CASCADE, related_name='ambienti')
+    nome = models.CharField(max_length=150)
+
+    class Meta:
+        unique_together = [('cantiere', 'nome')]
+        ordering = ['nome']
+        verbose_name = 'Ambiente'
+        verbose_name_plural = 'Ambienti'
+
+    def __str__(self):
+        return f"{self.cantiere.nome} – {self.nome}"
+
+
 class ClusterAttivita(models.Model):
     FONTE_CHOICES = [
         ('preventivo', 'Preventivo'),
         ('extra', 'Extra'),
         ('materiali', 'Materiali'),
+    ]
+    AVANZAMENTO_CHOICES = [
+        ('iniziato',   'Iniziato'),
+        ('in_corso',   'In corso'),
+        ('completato', 'Completato'),
     ]
     giornata = models.ForeignKey(
         GiornataDiario, on_delete=models.CASCADE, related_name='clusters'
@@ -165,6 +184,11 @@ class ClusterAttivita(models.Model):
     categoria = models.CharField(max_length=50, default='altro')
     descrizione = models.TextField()
     ore_stimate = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
+    ambiente = models.ForeignKey(
+        Ambiente, null=True, blank=True, on_delete=models.SET_NULL, related_name='clusters'
+    )
+    dipendenti_nomi = models.CharField(max_length=300, blank=True)
+    avanzamento = models.CharField(max_length=20, choices=AVANZAMENTO_CHOICES, blank=True)
 
     class Meta:
         ordering = ['categoria']
