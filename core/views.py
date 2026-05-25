@@ -225,6 +225,21 @@ def cluster_update(request, pk):
 
 
 @login_required
+def giornata_rielabora(request, pk):
+    giornata = get_object_or_404(GiornataDiario, pk=pk)
+    if request.method == 'POST':
+        giornata.clusters.all().delete()
+        giornata.ai_processata = False
+        giornata.save()
+        processa_giornata(giornata)
+        if giornata.clusters.exists():
+            messages.success(request, f'Giornata del {giornata.data_label} rielaborata.')
+        else:
+            messages.warning(request, 'Nessun cluster estratto — verifica che OPENAI_API_KEY sia impostata.')
+    return redirect('cantiere_detail', pk=giornata.cantiere.pk)
+
+
+@login_required
 def giornata_delete(request, pk):
     giornata = get_object_or_404(GiornataDiario, pk=pk)
     cantiere_pk = giornata.cantiere.pk

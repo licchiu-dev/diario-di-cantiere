@@ -109,6 +109,13 @@
         <a href="{% url 'giornata_update' g.pk %}" class="btn btn-xs btn-outline-secondary">
           <i class="bi bi-pencil"></i>
         </a>
+        <form method="post" action="{% url 'giornata_rielabora' g.pk %}" class="d-inline"
+              onsubmit="return confirm('Rielaborare con AI la giornata del {{ g.data_label }}? I cluster esistenti verranno sostituiti.')">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-xs btn-outline-primary" title="Rielabora con AI">
+            <i class="bi bi-stars"></i>
+          </button>
+        </form>
         <form method="post" action="{% url 'giornata_delete' g.pk %}" class="d-inline"
               onsubmit="return confirm('Eliminare la giornata del {{ g.data_label }}?')">
           {% csrf_token %}
