@@ -37,7 +37,7 @@ def _get_or_create_ambiente(cantiere, nome: str):
 
 # ── Estrazione OpenAI ─────────────────────────────────────────────────────────
 
-def _extract_with_openai(testo: str, fonte: str, n_operai: int, ore_lavorate: float) -> list[dict] | None:
+def _extract_with_openai(testo: str, fonte: str) -> list[dict] | None:
     try:
         from django.conf import settings
         api_key = getattr(settings, 'OPENAI_API_KEY', '')
@@ -52,9 +52,9 @@ def _extract_with_openai(testo: str, fonte: str, n_operai: int, ore_lavorate: fl
             istr_ore = "Stai analizzando bolle di materiale: ore_stimate deve essere sempre null."
         else:
             istr_ore = (
-                f"Ci sono {n_operai} operai in cantiere per {ore_lavorate}h ciascuno.\n"
-                "ore_stimate = ore-uomo TOTALI (n. persone × ore individuali).\n"
-                "Esempi: 'Roberto e Leo, 5 ore' → 10.0 | 'Marco 3h' → 3.0 | senza ore → null"
+                "ore_stimate = ore-uomo TOTALI per questa attività specifica (n. persone × ore individuali).\n"
+                "Estrai solo le ore esplicitamente menzionate nel testo.\n"
+                "Esempi: 'Roberto e Leo, 5 ore' → 10.0 | 'Marco 3h' → 3.0 | 'Stefano 4h' → 4.0 | senza ore menzionate → null"
             )
 
         system = f"""Sei un assistente per diari di cantiere italiani. Analizza il testo e suddividilo in attività separate.
@@ -115,8 +115,6 @@ Rispondi SOLO con JSON:
 def processa_giornata(giornata) -> None:
     from core.models import ClusterAttivita
 
-    ore_uomo_totali = float(giornata.n_operai) * float(giornata.ore_lavorate)
-
     campi = [
         (giornata.desc_preventivo, 'preventivo'),
         (giornata.desc_extra,      'extra'),
@@ -127,29 +125,14 @@ def processa_giornata(giornata) -> None:
     for testo, fonte in campi:
         if not testo.strip():
             continue
-        clusters = _extract_with_openai(testo, fonte, giornata.n_operai, float(giornata.ore_lavorate))
+        clusters = _extract_with_openai(testo, fonte)
         if clusters:
             tutti.extend(clusters)
 
     if not tutti:
-        # Nessun cluster (API key mancante o testo vuoto): testo grezzo resta visibile
         giornata.ai_processata = True
         giornata.save(update_fields=['ai_processata'])
         return
-
-    cluster_lavoro = [c for c in tutti if c.get('categoria') != 'materiali']
-    cluster_mat    = [c for c in tutti if c.get('categoria') == 'materiali']
-
-    # Distribuisci ore residue proporzionalmente ai cluster senza ore esplicite
-    ore_esplicite = sum(c['ore_stimate'] for c in cluster_lavoro if c.get('ore_stimate') is not None)
-    ore_residue   = max(0.0, ore_uomo_totali - ore_esplicite)
-
-    senza_ore = [(i, c) for i, c in enumerate(cluster_lavoro) if c.get('ore_stimate') is None]
-    pesi      = [c.get('n_persone', 1) for _, c in senza_ore]
-    tot_peso  = sum(pesi) or 1
-
-    for j, (i, _) in enumerate(senza_ore):
-        cluster_lavoro[i]['ore_stimate'] = round(ore_residue * pesi[j] / tot_peso, 1)
 
     da_creare = [
         ClusterAttivita(
@@ -157,24 +140,13 @@ def processa_giornata(giornata) -> None:
             fonte=c['fonte'],
             categoria=c['categoria'],
             descrizione=c['descrizione'][:400],
-            ore_stimate=round(float(c['ore_stimate']), 1),
+            ore_stimate=round(float(c['ore_stimate']), 1) if c.get('ore_stimate') is not None else None,
             ambiente=_get_or_create_ambiente(giornata.cantiere, c.get('ambiente_nome', '')),
             dipendenti_nomi=c.get('dipendenti_nomi', ''),
             avanzamento=c.get('avanzamento', ''),
         )
-        for c in cluster_lavoro
-    ] + [
-        ClusterAttivita(
-            giornata=giornata,
-            fonte=c['fonte'],
-            categoria=c['categoria'],
-            descrizione=c['descrizione'][:400],
-            ore_stimate=None,
-            ambiente=_get_or_create_ambiente(giornata.cantiere, c.get('ambiente_nome', '')),
-            dipendenti_nomi=c.get('dipendenti_nomi', ''),
-            avanzamento=c.get('avanzamento', ''),
-        )
-        for c in cluster_mat
+        for c in tutti
+        if str(c.get('descrizione', '')).strip()
     ]
 
     ClusterAttivita.objects.bulk_create(da_creare)

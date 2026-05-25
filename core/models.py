@@ -92,23 +92,16 @@ class Cantiere(models.Model):
 
     @property
     def ore_uomo_totali(self):
-        result = self.giornate.aggregate(
-            tot=models.Sum(
-                models.F('n_operai') * models.F('ore_lavorate'),
-                output_field=models.DecimalField()
-            )
-        )
+        from core.models import ClusterAttivita as CA
+        result = CA.objects.filter(
+            giornata__cantiere=self
+        ).exclude(ore_stimate=None).aggregate(tot=models.Sum('ore_stimate'))
         return result['tot'] or 0
 
 
 class GiornataDiario(models.Model):
     data = models.DateField()
     cantiere = models.ForeignKey(Cantiere, on_delete=models.CASCADE, related_name='giornate')
-    n_operai = models.PositiveSmallIntegerField(default=1, verbose_name='N. operai presenti')
-    ore_lavorate = models.DecimalField(
-        max_digits=4, decimal_places=1, default=8.0,
-        verbose_name='Ore lavorate (per operaio)'
-    )
     desc_preventivo = models.TextField(
         blank=True,
         verbose_name='Attività di preventivo',
@@ -140,7 +133,10 @@ class GiornataDiario(models.Model):
 
     @property
     def ore_uomo(self):
-        return self.n_operai * float(self.ore_lavorate)
+        return sum(
+            float(c.ore_stimate) for c in self.clusters.all()
+            if c.ore_stimate is not None
+        )
 
     @property
     def data_label(self):

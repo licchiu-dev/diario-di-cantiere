@@ -29,20 +29,12 @@
                 <div class="invalid-feedback d-block">{{ form.data.errors.0 }}</div>
               {% endif %}
             </div>
-            <div class="col-md-4">
+            <div class="col-md-8">
               <label class="form-label fw-semibold">Cantiere *</label>
               {{ form.cantiere }}
               {% if form.cantiere.errors %}
                 <div class="invalid-feedback d-block">{{ form.cantiere.errors.0 }}</div>
               {% endif %}
-            </div>
-            <div class="col-md-2">
-              <label class="form-label fw-semibold">N. operai</label>
-              {{ form.n_operai }}
-            </div>
-            <div class="col-md-2">
-              <label class="form-label fw-semibold">Ore / op.</label>
-              {{ form.ore_lavorate }}
             </div>
           </div>
         </div>

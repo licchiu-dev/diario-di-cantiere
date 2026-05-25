@@ -6,7 +6,7 @@ class GiornataDiarioForm(forms.ModelForm):
     class Meta:
         model = GiornataDiario
         fields = [
-            'data', 'cantiere', 'n_operai', 'ore_lavorate',
+            'data', 'cantiere',
             'desc_preventivo', 'desc_extra', 'desc_materiali',
         ]
         widgets = {
@@ -15,12 +15,6 @@ class GiornataDiarioForm(forms.ModelForm):
             ),
             'cantiere': forms.Select(
                 attrs={'class': 'form-select form-select-lg'}
-            ),
-            'n_operai': forms.NumberInput(
-                attrs={'class': 'form-control form-control-lg', 'min': '1', 'max': '50'}
-            ),
-            'ore_lavorate': forms.NumberInput(
-                attrs={'class': 'form-control form-control-lg', 'step': '0.5', 'min': '1', 'max': '14'}
             ),
             'desc_preventivo': forms.Textarea(
                 attrs={

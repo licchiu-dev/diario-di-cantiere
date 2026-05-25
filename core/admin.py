@@ -41,7 +41,7 @@ class CategoriaLavorazioneAdmin(admin.ModelAdmin):
 
 @admin.register(GiornataDiario)
 class GiornataDiarioAdmin(admin.ModelAdmin):
-    list_display = ['data', 'cantiere', 'n_operai', 'ore_lavorate', 'ai_processata']
+    list_display = ['data', 'cantiere', 'ai_processata']
     list_filter = ['cantiere', 'ai_processata']
     date_hierarchy = 'data'
     inlines = [ClusterInline]
