@@ -16,4 +16,5 @@ urlpatterns = [
     path('cantieri/<int:pk>/modifica/', views.cantiere_update, name='cantiere_update'),
     path('cluster/<int:pk>/modifica/', views.cluster_update, name='cluster_update'),
     path('backup/', views.esporta_backup, name='esporta_backup'),
+    path('health/', views.health, name='health'),
 ]

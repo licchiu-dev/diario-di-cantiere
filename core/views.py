@@ -155,6 +155,16 @@ def giornata_update(request, pk):
     })
 
 
+def health(request):
+    from django.db import connection
+    db = connection.settings_dict
+    return JsonResponse({
+        'status': 'ok',
+        'database': db['ENGINE'],
+        'host': db.get('HOST', 'sqlite-locale'),
+    })
+
+
 @login_required
 def esporta_backup(request):
     cantieri = Cantiere.objects.prefetch_related('giornate__clusters').all()
