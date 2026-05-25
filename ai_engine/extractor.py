@@ -19,7 +19,9 @@ KEYWORD_MAP = {
         'stucco', 'stuccatura', 'stuccare', 'rasatura', 'rasare',
         'q2', 'q3', 'q4', 'livello 2', 'livello 3', 'livello 4',
         'giunti', 'nastro', 'rinforzo angoli', 'angolari', 'finitura',
-        'lisciatura',
+        'lisciatura', 'intonaco', 'intonaci', 'intonacare', 'intonacatura',
+        'rifacimento intonaco', 'ripristino intonaco', 'stabilitura',
+        'arriccio', 'rinzaffo', 'spigoli', 'raccordo',
     ],
     'pittura': [
         'pittura', 'tinteggiatura', 'verniciatura', 'dipingere',
