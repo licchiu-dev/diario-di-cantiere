@@ -196,6 +196,6 @@ class ClusterAttivita(models.Model):
         verbose_name_plural = 'Cluster attività'
 
     def __str__(self):
-        return f"{self.get_categoria_display()} – {self.descrizione[:60]}"
+        return f"{self.categoria} – {self.descrizione[:60]}"
 
 
